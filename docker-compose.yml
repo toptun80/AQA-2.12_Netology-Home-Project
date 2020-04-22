@@ -1,0 +1,28 @@
+# Версия Docker-Compose
+version: '3'
+# Ключевое слово
+services:
+  # Название контейнера
+  mysql:
+    # Образ MySQL:version
+    image: mysql:8.0.18
+    # Binding Ports
+    ports:
+      - '3306:3306'
+    # Binding Directories (PC:Container_BD)
+    volumes:
+      - ./Data:/var/lib/MySQL
+      - ./src/test/resources:/docker-entrypoint-initdb.d
+    # Системные Переменные
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+
+  # клиент с графическим интерфейсом
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+        - 8080:8080
