@@ -3,7 +3,7 @@ package Service;
 import Request.AuthData;
 import Request.C2CTransferData;
 import Request.VerificationData;
-import Response.CardsData;
+import Response.Card;
 import Response.Token;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -12,6 +12,7 @@ import io.restassured.specification.RequestSpecification;
 import lombok.Data;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
@@ -27,7 +28,6 @@ public class RequestGenerator {
     RequestSpecification requestSpec = new RequestSpecBuilder()
             .setBaseUri(BASE_PATH)
             .setPort(9999)
-            .setAccept(ContentType.JSON)
             .setContentType(ContentType.JSON)
             .log(LogDetail.ALL)
             .build();
@@ -61,9 +61,9 @@ public class RequestGenerator {
         return token;
     }
 
-    public CardsData getCardsInfo(String token) {
+    public List<Card> getCardsInfo(String token) {
 
-        CardsData cardsData = given()
+        List <Card> cards = given()
                 .spec(requestSpec)
                 .auth()
                 .oauth2(token)
@@ -71,9 +71,11 @@ public class RequestGenerator {
                 .get(CARDS_ENDPOINT)
                 .then()
                 .extract()
-                .response()
-                .as(CardsData.class);
-        return cardsData;
+                .body()
+                .jsonPath()
+                .getList(".", Card.class);
+
+        return cards;
     }
 
     public void card2CardTransfer(String from, String to, long amount, String token) {
