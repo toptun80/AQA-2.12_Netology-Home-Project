@@ -4,6 +4,7 @@ import Request.AuthData;
 import Request.C2CTransferData;
 import Request.VerificationData;
 import Response.Card;
+import Response.ErrorMessage;
 import Response.Token;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
@@ -91,5 +92,25 @@ public class RequestGenerator {
                 .post(TRANSFER_ENDPOINT)
                 .then()
                 .statusCode(200);
+    }
+
+    public ErrorMessage card2CardInvalidTransfer(String from, String to, long amount, String token) {
+
+        C2CTransferData c2CTransferData = new C2CTransferData(from, to, amount);
+
+        ErrorMessage errorMessage = given()
+                .spec(requestSpec)
+                .auth()
+                .oauth2(token)
+                .body(c2CTransferData)
+                .when()
+                .post(TRANSFER_ENDPOINT)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response()
+                .as(ErrorMessage.class);
+
+        return errorMessage;
     }
 }
