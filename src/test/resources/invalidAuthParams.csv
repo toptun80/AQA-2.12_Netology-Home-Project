@@ -1,0 +1,3 @@
+login,password,expectedErrorMessage
+"vasyan","qwerty123","AUTH_INVALID"
+"vasya","qwerty1234","AUTH_INVALID"

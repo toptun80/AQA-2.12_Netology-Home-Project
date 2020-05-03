@@ -25,6 +25,12 @@ public class RequestGenerator {
     private static final String VERIFICATION_ENDPOINT = "/api/auth/verification";
     private static final String CARDS_ENDPOINT = "/api/cards";
     private static final String TRANSFER_ENDPOINT = "/api/transfer";
+    private AuthData authData;
+    private VerificationData verificationData;
+    private Token token;
+    private List <Card> cards;
+    private ErrorMessage errorMessage;
+    private C2CTransferData c2CTransferData;
 
     RequestSpecification requestSpec = new RequestSpecBuilder()
             .setBaseUri(BASE_PATH)
@@ -35,9 +41,9 @@ public class RequestGenerator {
 
     public void auth(String login, String password) {
 
-         AuthData authData = new AuthData(login, password);
+        authData = new AuthData(login, password);
 
-         given()
+        given()
                  .spec(requestSpec)
                  .body(authData)
                  .when()
@@ -48,9 +54,9 @@ public class RequestGenerator {
 
     public Token verification(String login) throws SQLException {
 
-        VerificationData verificationData = VerificationData.getVerificationData(login);
+        verificationData = VerificationData.getVerificationData(login);
 
-        Token token = given()
+        token = given()
                 .spec(requestSpec)
                 .body(verificationData)
                 .when()
@@ -59,12 +65,13 @@ public class RequestGenerator {
                 .extract()
                 .response()
                 .as(Token.class);
+
         return token;
     }
 
     public List<Card> getCardsInfo(String token) {
 
-        List <Card> cards = given()
+        cards = given()
                 .spec(requestSpec)
                 .auth()
                 .oauth2(token)
@@ -81,7 +88,7 @@ public class RequestGenerator {
 
     public void card2CardTransfer(String from, String to, long amount, String token) {
 
-        C2CTransferData c2CTransferData = new C2CTransferData(from, to, amount);
+        c2CTransferData = new C2CTransferData(from, to, amount);
 
         given()
                 .spec(requestSpec)
@@ -96,9 +103,9 @@ public class RequestGenerator {
 
     public ErrorMessage card2CardInvalidTransfer(String from, String to, long amount, String token) {
 
-        C2CTransferData c2CTransferData = new C2CTransferData(from, to, amount);
+        c2CTransferData = new C2CTransferData(from, to, amount);
 
-        ErrorMessage errorMessage = given()
+        errorMessage = given()
                 .spec(requestSpec)
                 .auth()
                 .oauth2(token)
@@ -106,11 +113,57 @@ public class RequestGenerator {
                 .when()
                 .post(TRANSFER_ENDPOINT)
                 .then()
-                .statusCode(200)
+                .statusCode(500)
                 .extract()
                 .response()
                 .as(ErrorMessage.class);
 
         return errorMessage;
+    }
+
+    public ErrorMessage invalidAuth(String login, String password) {
+
+        authData = new AuthData(login, password);
+
+        errorMessage = given()
+                .spec(requestSpec)
+                .body(authData)
+                .when()
+                .post(AUTH_ENDPOINT)
+                .then()
+                .statusCode(400)
+                .extract()
+                .response().as(ErrorMessage.class);
+
+        return errorMessage;
+    }
+
+    public ErrorMessage invalidVerification(String login, String additionalText) throws SQLException {
+
+        verificationData = VerificationData.getVerificationData(login);
+        verificationData.setCode(verificationData.getCode().concat(additionalText));
+
+        errorMessage = given()
+                .spec(requestSpec)
+                .body(verificationData)
+                .when()
+                .post(VERIFICATION_ENDPOINT)
+                .then()
+                .statusCode(400)
+                .extract()
+                .response()
+                .as(ErrorMessage.class);
+
+        return errorMessage;
+    }
+
+    public void getCardsInfoWithoutToken() {
+
+         given()
+                .spec(requestSpec)
+                .when()
+                .get(CARDS_ENDPOINT)
+                .then()
+                .statusCode(401);
     }
 }
