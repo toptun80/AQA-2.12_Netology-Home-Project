@@ -11,7 +11,10 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import lombok.Data;
+import lombok.val;
+import org.apache.commons.dbutils.QueryRunner;
 
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -165,5 +168,20 @@ public class RequestGenerator {
                 .get(CARDS_ENDPOINT)
                 .then()
                 .statusCode(401);
+    }
+
+    public void cleanDB() throws SQLException {
+        val deleteFromAuthCodes = "TRUNCATE TABLE auth_codes;";
+        val deleteFromCardTransactions = "TRUNCATE TABLE card_transactions;";
+        val setInitBalanceForCards = "UPDATE cards SET balance_in_kopecks = 1000000";
+        val runner = new QueryRunner();
+        try (val conn = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/db", "user", "pass"
+        );
+        ) {
+            runner.update(conn, deleteFromAuthCodes);
+            runner.update(conn, deleteFromCardTransactions);
+            runner.update(conn, setInitBalanceForCards);
+        }
     }
 }

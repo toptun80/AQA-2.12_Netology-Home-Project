@@ -2,6 +2,7 @@ import Response.Card;
 import Response.ErrorMessage;
 import Response.Token;
 import Service.RequestGenerator;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,10 +15,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class APITests {
 
-    RequestGenerator requestGenerator = new RequestGenerator();
+    static RequestGenerator requestGenerator = new RequestGenerator();
     Token token;
     List<Card> cards;
     ErrorMessage errorMessage;
+
+    @AfterAll
+    @DisplayName("Удаление кодов авторизации и транзакций из БД")
+    static void cleanDB() throws SQLException {
+        requestGenerator.cleanDB();
+    }
 
     @ParameterizedTest
     @DisplayName("Перевод с карты на карту половины остатка")
