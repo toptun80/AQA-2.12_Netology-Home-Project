@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class APITests {
 
-    static RequestGenerator requestGenerator = new RequestGenerator();
-    Token token;
-    List<Card> cards;
-    ErrorMessage errorMessage;
+    public static RequestGenerator requestGenerator = new RequestGenerator();
+    private Token token;
+    private List<Card> cards;
+    private ErrorMessage errorMessage;
 
     @AfterAll
     @DisplayName("Удаление кодов авторизации и транзакций из БД")
@@ -49,7 +49,7 @@ public class APITests {
     }
 
     @ParameterizedTest
-    @DisplayName("Перевод с карты на карту суммы больше остатка на карте")
+    @DisplayName("Перевод с карты на карту с недопустимыми параметрами перевода")
     @CsvFileSource(resources = "/invalidTransferParams.csv", numLinesToSkip = 1)
     void invalidTransferFundsBetweenCards(String login,
                                    String password,
