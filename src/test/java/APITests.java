@@ -21,7 +21,7 @@ public class APITests {
     private ErrorMessage errorMessage;
 
     @AfterAll
-    @DisplayName("Удаление кодов авторизации и транзакций из БД")
+    @DisplayName("Приведение БД к начальному состоянию")
     static void cleanDB() throws SQLException {
         requestGenerator.cleanDB();
     }
